@@ -1,0 +1,25 @@
+.version-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: #668;
+}
+
+.version-badge {
+  background: linear-gradient(135deg, #4a4a8e, #5a5a9e);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.build-info {
+  color: #88a;
+}
+
+.build-time {
+  color: #557;
+}

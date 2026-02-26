@@ -3,6 +3,7 @@ import { OfficeScene } from './scenes/OfficeScene';
 import { ModelConfigModal } from './components/ModelConfigModal';
 import { AgentPanel } from './components/AgentPanel';
 import { ConnectionStatus } from './components/ConnectionStatus';
+import { VersionInfo } from './components/VersionInfo';
 import { useAgentStore, initAgentStoreListeners } from './store/agentStore';
 import type { ModelConfig } from './types';
 import './App.css';
@@ -99,6 +100,7 @@ function App() {
         <p className="credits">
           {agents.length} 个 Agent | 点击 Agent 选中 · 拖拽移动 · 实时对话
         </p>
+        <VersionInfo />
       </footer>
 
       <ModelConfigModal
