@@ -1,3 +1,6 @@
+/* Pixel Font Import */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 .office-scene {
   display: flex;
   flex-direction: column;
@@ -298,6 +301,77 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
+}
+
+/* Pixel Art Styles */
+.pixel-canvas {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* Agent Status Animations */
+.agent-avatar {
+  position: relative;
+}
+
+.agent-avatar::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  border: 2px solid #fff;
+  animation: status-glow 2s ease-in-out infinite;
+}
+
+.agent-card[data-state="idle"] .agent-avatar::after {
+  background: #9CA3AF;
+  animation: none;
+}
+
+.agent-card[data-state="thinking"] .agent-avatar::after {
+  background: #FFD93D;
+  animation: status-pulse 1s ease-in-out infinite;
+}
+
+.agent-card[data-state="typing"] .agent-avatar::after {
+  background: #6BCF7F;
+  animation: status-flow 0.8s ease-in-out infinite;
+}
+
+.agent-card[data-state="error"] .agent-avatar::after {
+  background: #FF6B6B;
+  animation: status-flash 0.5s ease-in-out infinite;
+}
+
+.agent-card[data-state="success"] .agent-avatar::after {
+  background: #4DABF7;
+  animation: status-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes status-glow {
+  0%, 100% { box-shadow: 0 0 4px currentColor; }
+  50% { box-shadow: 0 0 8px currentColor, 0 0 12px currentColor; }
+}
+
+@keyframes status-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+@keyframes status-flow {
+  0%, 100% { box-shadow: 0 0 4px currentColor; }
+  25% { box-shadow: -2px 0 6px currentColor; }
+  50% { box-shadow: 0 0 8px currentColor; }
+  75% { box-shadow: 2px 0 6px currentColor; }
+}
+
+@keyframes status-flash {
+  0%, 100% { opacity: 1; box-shadow: 0 0 4px currentColor; }
+  50% { opacity: 0.5; box-shadow: 0 0 12px currentColor, 0 0 20px currentColor; }
 }
 
 /* Responsive */
