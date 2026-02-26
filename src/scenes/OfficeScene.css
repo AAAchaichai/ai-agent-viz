@@ -204,6 +204,7 @@
   cursor: pointer;
   transition: all 0.2s;
   min-width: 140px;
+  position: relative;
 }
 
 .agent-card:hover {
@@ -267,6 +268,41 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
+}
+
+/* Delete Button */
+.delete-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.5;
+  transition: all 0.2s;
+  margin-left: 4px;
+}
+
+.delete-btn:hover {
+  background: #fee2e2;
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.agent-card:hover .delete-btn {
+  opacity: 0.8;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 24px;
+  color: #9ca3af;
+  font-size: 14px;
 }
 
 /* Legend */

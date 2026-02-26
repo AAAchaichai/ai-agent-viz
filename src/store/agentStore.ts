@@ -54,6 +54,16 @@ const defaultPresetModels: ModelConfig[] = [
     temperature: 0.7,
     maxTokens: 2000,
     enabled: false
+  },
+  {
+    id: 'minimax',
+    name: 'MiniMax M2.5',
+    provider: 'minimax',
+    baseUrl: 'https://api.minimaxi.com/anthropic',
+    model: 'MiniMax-M2.5',
+    temperature: 0.7,
+    maxTokens: 2000,
+    enabled: true
   }
 ];
 

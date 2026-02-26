@@ -5,6 +5,16 @@ import type { ModelConfig } from '../types.ts';
 
 export async function registerRoutes(fastify: FastifyInstance) {
   
+  // 健康检查端点
+  fastify.get('/api/health', async () => {
+    return {
+      status: 'ok',
+      timestamp: Date.now(),
+      uptime: process.uptime(),
+      version: '1.0.0'
+    };
+  });
+
   // 获取预设模型列表
   fastify.get('/api/models', async () => {
     return {

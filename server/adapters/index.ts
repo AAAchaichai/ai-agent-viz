@@ -3,6 +3,7 @@ import { BaseAdapter } from './BaseAdapter.js';
 import { OpenAIAdapter } from './OpenAIAdapter.js';
 import { OllamaAdapter } from './OllamaAdapter.js';
 import { AnthropicAdapter } from './AnthropicAdapter.js';
+import { MinimaxAdapter } from './MinimaxAdapter.js';
 
 // 预设的模型配置
 export const presetModels: ModelConfig[] = [
@@ -55,6 +56,16 @@ export const presetModels: ModelConfig[] = [
     temperature: 0.7,
     maxTokens: 2000,
     enabled: false
+  },
+  {
+    id: 'minimax',
+    name: 'MiniMax M2.5',
+    provider: 'minimax',
+    baseUrl: 'https://api.minimaxi.com/anthropic',
+    model: 'MiniMax-M2.5',
+    temperature: 0.7,
+    maxTokens: 2000,
+    enabled: true
   }
 ];
 
@@ -69,6 +80,8 @@ export class AdapterFactory {
         return new OllamaAdapter(config);
       case 'anthropic':
         return new AnthropicAdapter(config);
+      case 'minimax':
+        return new MinimaxAdapter(config);
       default:
         // 默认为 OpenAI 兼容接口
         return new OpenAIAdapter(config);
@@ -97,4 +110,4 @@ export class AdapterFactory {
   }
 }
 
-export { BaseAdapter, OpenAIAdapter, OllamaAdapter, AnthropicAdapter };
+export { BaseAdapter, OpenAIAdapter, OllamaAdapter, AnthropicAdapter, MinimaxAdapter };

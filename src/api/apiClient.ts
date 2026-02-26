@@ -1,6 +1,9 @@
 import type { ModelConfig, AgentInstance } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// 后端服务地址
+// 开发环境: http://localhost:3001
+// 生产环境: http://115.191.56.155:3001
+const API_BASE_URL = 'http://115.191.56.155:3001';
 
 export interface ChatChunk {
   content: string;

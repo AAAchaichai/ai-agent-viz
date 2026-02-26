@@ -42,7 +42,8 @@ export function OfficeScene() {
     viewport, 
     setViewport,
     selectAgent,
-    addAgent,
+    removeAgent,
+    deleteServerAgent,
     updateAgentState,
     updateAgentMessage
   } = useAgentStore();
@@ -111,14 +112,10 @@ export function OfficeScene() {
     engineRef.current?.setViewport(viewport.x, viewport.y, viewport.zoom);
   }, [viewport]);
 
-  // 初始化：添加示例 Agent
+  // 初始化：不再硬编码默认小人，改为从服务器同步或让用户手动创建
   useEffect(() => {
-    if (agents.length === 0) {
-      // 添加 3 个示例 Agent
-      addAgent({ name: '海绵宝宝', position: { x: 200, y: 280 } });
-      addAgent({ name: '派大星', position: { x: 400, y: 250 } });
-      addAgent({ name: '章鱼哥', position: { x: 600, y: 280 } });
-    }
+    // 移除默认小人初始化，改为依赖后端数据同步
+    // 如果后端没有agents，页面将显示空状态，用户可以手动创建
   }, []);
 
   // 多Agent协作演示
@@ -360,9 +357,29 @@ export function OfficeScene() {
                   {agent.state}
                 </div>
               </div>
+              <button 
+                className="delete-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (confirm(`确定要删除 "${agent.name}" 吗？`)) {
+                    deleteServerAgent(agent.id).catch(() => {
+                      // 如果后端删除失败（如本地agent或后端不存在），直接前端删除
+                      removeAgent(agent.id);
+                    });
+                  }
+                }}
+                title="删除 Agent"
+              >
+                🗑️
+              </button>
             </div>
           ))}
         </div>
+        {agents.length === 0 && (
+          <div className="empty-state">
+            <p>还没有 Agent，点击"添加 Agent"按钮创建</p>
+          </div>
+        )}
       </div>
       
       <div className="legend">
