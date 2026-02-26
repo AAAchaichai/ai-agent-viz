@@ -3,6 +3,60 @@ import type { AgentState, AgentConfig, ModelConfig, AgentInstance } from '../typ
 import { apiClient } from '../api/apiClient';
 import { webSocketClient } from '../api/webSocketClient';
 
+// 默认预设模型配置（离线模式使用）
+const defaultPresetModels: ModelConfig[] = [
+  {
+    id: 'siliconflow',
+    name: 'SiliconFlow',
+    provider: 'openai',
+    baseUrl: 'https://api.siliconflow.cn/v1',
+    model: 'deepseek-ai/DeepSeek-V3',
+    temperature: 0.7,
+    maxTokens: 2000,
+    enabled: false
+  },
+  {
+    id: 'deepseek',
+    name: 'DeepSeek',
+    provider: 'openai',
+    baseUrl: 'https://api.deepseek.com/v1',
+    model: 'deepseek-chat',
+    temperature: 0.7,
+    maxTokens: 2000,
+    enabled: false
+  },
+  {
+    id: 'openai',
+    name: 'OpenAI',
+    provider: 'openai',
+    baseUrl: 'https://api.openai.com/v1',
+    model: 'gpt-4o-mini',
+    temperature: 0.7,
+    maxTokens: 2000,
+    enabled: false
+  },
+  {
+    id: 'ollama',
+    name: 'Ollama (Local)',
+    provider: 'ollama',
+    baseUrl: 'http://localhost:11434',
+    model: 'llama3.2',
+    temperature: 0.7,
+    maxTokens: 2000,
+    enabled: false
+  },
+  {
+    id: 'anthropic',
+    name: 'Anthropic Claude',
+    provider: 'anthropic',
+    baseUrl: 'https://api.anthropic.com',
+    model: 'claude-3-5-sonnet-20241022',
+    temperature: 0.7,
+    maxTokens: 2000,
+    enabled: false
+  }
+];
+
 export interface Agent {
   id: string;
   name: string;
@@ -212,7 +266,9 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
         get().addAgentFromServer(agent);
       });
     } catch (error) {
-      console.error('Failed to sync with server:', error);
+      console.warn('Server not available, using default presets:', error);
+      // 使用本地预设模型（离线模式）
+      get().setPresetModels(defaultPresetModels);
     }
   },
 
@@ -223,8 +279,18 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
         get().addAgentFromServer(result.agent);
       }
     } catch (error) {
-      console.error('Failed to create server agent:', error);
-      throw error;
+      console.warn('Server not available, creating local agent:', error);
+      // 本地创建 Agent（离线模式）
+      const localAgent: AgentInstance = {
+        id: `local-${Date.now()}`,
+        name,
+        status: 'idle',
+        modelConfig,
+        currentMessage: '',
+        lastActive: Date.now(),
+        conversationHistory: []
+      };
+      get().addAgentFromServer(localAgent);
     }
   },
 
