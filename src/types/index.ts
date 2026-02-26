@@ -45,8 +45,36 @@ export type SSEEventType =
 
 export interface SSEEvent {
   type: SSEEventType;
+  agentId: string;
   data: any;
   timestamp: number;
+}
+
+// 模型配置
+export interface ModelConfig {
+  id: string;
+  name: string;
+  provider: string;
+  baseUrl: string;
+  apiKey?: string;
+  model: string;
+  temperature?: number;
+  maxTokens?: number;
+  enabled: boolean;
+}
+
+// Agent实例（服务端）
+export interface AgentInstance {
+  id: string;
+  name: string;
+  modelConfig: ModelConfig;
+  status: AgentState;
+  currentMessage?: string;
+  lastActive: number;
+  conversationHistory: Array<{
+    role: 'system' | 'user' | 'assistant';
+    content: string;
+  }>;
 }
 
 // 游戏循环回调

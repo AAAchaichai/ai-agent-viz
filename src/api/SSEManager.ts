@@ -7,6 +7,7 @@ export class SSEManager {
   private maxReconnectAttempts: number = 5;
   private reconnectDelay: number = 1000;
   private url: string;
+  private currentAgentId: string = 'all';
 
   constructor(url: string) {
     this.url = url;
@@ -15,13 +16,14 @@ export class SSEManager {
     eventTypes.forEach(type => this.listeners.set(type, []));
   }
 
-  connect() {
+  connect(agentId: string = 'all') {
+    this.currentAgentId = agentId;
     if (this.eventSource) {
       this.disconnect();
     }
 
     try {
-      this.eventSource = new EventSource(this.url);
+      this.eventSource = new EventSource(`${this.url}/api/stream/${agentId}`);
 
       this.eventSource.onopen = () => {
         console.log('SSE connection established');
@@ -62,15 +64,18 @@ export class SSEManager {
       console.log(`Attempting to reconnect in ${delay}ms (attempt ${this.reconnectAttempts})`);
       
       setTimeout(() => {
-        this.connect();
+        this.connect(this.currentAgentId);
       }, delay);
     } else {
       console.error('Max reconnection attempts reached');
-      this.emit('error', {
+      // 触发错误回调但不构造无效的事件对象
+      const errorListeners = this.listeners.get('error');
+      errorListeners?.forEach(listener => listener({
         type: 'error',
+        agentId: 'system',
         data: { message: 'Failed to establish SSE connection' },
         timestamp: Date.now()
-      });
+      }));
     }
   }
 
@@ -96,36 +101,35 @@ export class SSEManager {
     };
   }
 
-  private emit(eventType: SSEEventType, event: SSEEvent) {
-    const listeners = this.listeners.get(eventType);
-    if (listeners) {
-      listeners.forEach(listener => listener(event));
-    }
-  }
-
   // 模拟SSE事件（用于本地测试）
   simulateStateChange(state: AgentState) {
-    this.emit('state_change', {
+    const listeners = this.listeners.get('state_change');
+    listeners?.forEach(listener => listener({
       type: 'state_change',
+      agentId: 'simulated',
       data: { state },
       timestamp: Date.now()
-    });
+    }));
   }
 
   simulateMessageChunk(content: string) {
-    this.emit('message_chunk', {
+    const listeners = this.listeners.get('message_chunk');
+    listeners?.forEach(listener => listener({
       type: 'message_chunk',
+      agentId: 'simulated',
       data: { content },
       timestamp: Date.now()
-    });
+    }));
   }
 
   simulateMessageComplete() {
-    this.emit('message_complete', {
+    const listeners = this.listeners.get('message_complete');
+    listeners?.forEach(listener => listener({
       type: 'message_complete',
+      agentId: 'simulated',
       data: {},
       timestamp: Date.now()
-    });
+    }));
   }
 
   isConnected(): boolean {

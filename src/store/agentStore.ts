@@ -1,5 +1,7 @@
 import { create } from 'zustand';
-import type { AgentState, AgentConfig } from '../types';
+import type { AgentState, AgentConfig, ModelConfig, AgentInstance } from '../types';
+import { apiClient } from '../api/apiClient';
+import { webSocketClient } from '../api/webSocketClient';
 
 export interface Agent {
   id: string;
@@ -9,6 +11,8 @@ export interface Agent {
   stateStartTime: number;
   message?: string;
   color: string;
+  modelConfig?: ModelConfig;
+  isTyping?: boolean;
 }
 
 interface AgentStore {
@@ -22,17 +26,32 @@ interface AgentStore {
     y: number;
     zoom: number;
   };
+  // 连接状态
+  isConnected: boolean;
+  // 预设模型
+  presetModels: ModelConfig[];
   
   // Actions
   addAgent: (config: Partial<AgentConfig>) => string;
+  addAgentFromServer: (instance: AgentInstance) => string;
   removeAgent: (id: string) => void;
   updateAgentState: (id: string, state: AgentState) => void;
   updateAgentPosition: (id: string, position: { x: number; y: number }) => void;
-  updateAgentMessage: (id: string, message: string) => void;
+  updateAgentMessage: (id: string, message: string, append?: boolean) => void;
+  setAgentTyping: (id: string, isTyping: boolean) => void;
   selectAgent: (id: string | null) => void;
   setViewport: (viewport: Partial<{ x: number; y: number; zoom: number }>) => void;
+  setConnectionStatus: (isConnected: boolean) => void;
+  setPresetModels: (models: ModelConfig[]) => void;
   
-  // 演示模式：自动切换状态
+  // 服务器同步
+  syncWithServer: () => Promise<void>;
+  createServerAgent: (name: string, modelConfig: ModelConfig) => Promise<void>;
+  deleteServerAgent: (id: string) => Promise<void>;
+  sendMessageToAgent: (agentId: string, message: string) => Promise<void>;
+  sendMessageBetweenAgents: (fromId: string, toId: string, message: string) => Promise<void>;
+  
+  // 演示模式
   startDemoMode: () => void;
   stopDemoMode: () => void;
 }
@@ -57,6 +76,8 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
     y: 0,
     zoom: 1
   },
+  isConnected: false,
+  presetModels: [],
 
   addAgent: (config) => {
     const id = `agent-${++agentIdCounter}`;
@@ -78,6 +99,33 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
     }));
     
     return id;
+  },
+
+  addAgentFromServer: (instance) => {
+    const existingAgent = get().agents.find(a => a.id === instance.id);
+    if (existingAgent) {
+      return existingAgent.id;
+    }
+
+    const newAgent: Agent = {
+      id: instance.id,
+      name: instance.name,
+      position: { 
+        x: 200 + (get().agents.length * 150) % 600, 
+        y: 150 + Math.floor(get().agents.length / 4) * 150 
+      },
+      state: instance.status,
+      stateStartTime: Date.now(),
+      color: stateColors[instance.status],
+      modelConfig: instance.modelConfig,
+      message: instance.currentMessage
+    };
+    
+    set((state) => ({
+      agents: [...state.agents, newAgent]
+    }));
+    
+    return instance.id;
   },
 
   removeAgent: (id) => {
@@ -110,10 +158,23 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
     }));
   },
 
-  updateAgentMessage: (id, message) => {
+  updateAgentMessage: (id, message, append = false) => {
     set((state) => ({
       agents: state.agents.map(agent => 
-        agent.id === id ? { ...agent, message } : agent
+        agent.id === id 
+          ? { 
+              ...agent, 
+              message: append ? (agent.message || '') + message : message 
+            }
+          : agent
+      )
+    }));
+  },
+
+  setAgentTyping: (id, isTyping) => {
+    set((state) => ({
+      agents: state.agents.map(agent => 
+        agent.id === id ? { ...agent, isTyping } : agent
       )
     }));
   },
@@ -126,6 +187,104 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
     set((state) => ({
       viewport: { ...state.viewport, ...viewport }
     }));
+  },
+
+  setConnectionStatus: (isConnected) => {
+    set({ isConnected });
+  },
+
+  setPresetModels: (models) => {
+    set({ presetModels: models });
+  },
+
+  // 服务器同步
+  syncWithServer: async () => {
+    try {
+      // 获取预设模型
+      const models = await apiClient.getModels();
+      get().setPresetModels(models.presets);
+
+      // 获取已创建的 Agents
+      const serverAgents = await apiClient.getAgents();
+      
+      // 同步到本地状态
+      serverAgents.forEach((agent: AgentInstance) => {
+        get().addAgentFromServer(agent);
+      });
+    } catch (error) {
+      console.error('Failed to sync with server:', error);
+    }
+  },
+
+  createServerAgent: async (name, modelConfig) => {
+    try {
+      const result = await apiClient.createAgent(name, modelConfig);
+      if (result.success && result.agent) {
+        get().addAgentFromServer(result.agent);
+      }
+    } catch (error) {
+      console.error('Failed to create server agent:', error);
+      throw error;
+    }
+  },
+
+  deleteServerAgent: async (id) => {
+    try {
+      await apiClient.deleteAgent(id);
+      get().removeAgent(id);
+    } catch (error) {
+      console.error('Failed to delete server agent:', error);
+      throw error;
+    }
+  },
+
+  sendMessageToAgent: async (agentId, message) => {
+    const { updateAgentMessage } = get();
+    
+    try {
+      await apiClient.sendMessage(
+        agentId,
+        message,
+        (chunk) => {
+          if (chunk.content) {
+            updateAgentMessage(agentId, chunk.content, true);
+          }
+        },
+        () => {
+          // 完成
+        },
+        (error) => {
+          console.error('Message error:', error);
+        }
+      );
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    }
+  },
+
+  sendMessageBetweenAgents: async (fromId, toId, message) => {
+    const { updateAgentMessage } = get();
+    
+    try {
+      await apiClient.sendMessageBetweenAgents(
+        fromId,
+        toId,
+        message,
+        (chunk) => {
+          if (chunk.content) {
+            updateAgentMessage(toId, chunk.content, true);
+          }
+        },
+        () => {
+          // 完成
+        },
+        (error) => {
+          console.error('Message error:', error);
+        }
+      );
+    } catch (error) {
+      console.error('Failed to send message between agents:', error);
+    }
   },
 
   // 演示模式：自动循环切换状态 idle → thinking → typing → idle
@@ -143,7 +302,7 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
       agents.forEach(agent => {
         get().updateAgentState(agent.id, nextState);
       });
-    }, 2000); // 每2秒切换一次状态
+    }, 2000);
   },
 
   stopDemoMode: () => {
@@ -153,3 +312,34 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
     }
   }
 }));
+
+// 初始化 WebSocket 监听
+export function initAgentStoreListeners() {
+  const store = useAgentStore.getState();
+
+  // 监听 WebSocket 事件
+  webSocketClient.subscribe((event) => {
+    switch (event.type) {
+      case 'state_change':
+        store.updateAgentState(event.agentId, event.data.status);
+        break;
+      case 'message_chunk':
+        store.updateAgentMessage(event.agentId, event.data.content, true);
+        break;
+      case 'message_complete':
+        store.setAgentTyping(event.agentId, false);
+        break;
+    }
+  });
+
+  // 监听连接状态
+  webSocketClient.onStatusChange((status) => {
+    store.setConnectionStatus(status === 'connected');
+  });
+
+  // 连接 WebSocket
+  webSocketClient.connect();
+
+  // 同步服务器数据
+  store.syncWithServer();
+}

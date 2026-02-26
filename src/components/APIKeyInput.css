@@ -1,0 +1,59 @@
+.api-key-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.api-key-field {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: 'Monaco', 'Menlo', monospace;
+  background: #f9fafb;
+  transition: all 0.2s;
+}
+
+.api-key-field:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.api-key-field:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toggle-visibility-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggle-visibility-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.toggle-visibility-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toggle-visibility-btn svg {
+  width: 18px;
+  height: 18px;
+  color: #6b7280;
+}

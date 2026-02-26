@@ -1,95 +1,170 @@
 # AI Agent Visualizer
 
-一个将AI Agent可视化为像素角色的Web应用。Watch your AI agents come to life!
+AI Agent 可视化项目 - 多模型集成与实时状态同步
 
-![Demo](demo.png)
+## 功能特性
 
-## 特性
+- 🤖 **多模型支持**: OpenAI、Anthropic、Ollama、SiliconFlow、DeepSeek 等
+- 📡 **实时通信**: WebSocket + SSE 实时状态同步
+- 🔄 **流式响应**: 实时显示 Agent 思考过程
+- 🎮 **可视化**: 像素风格 Agent 状态可视化
+- 🤝 **多 Agent 协作**: Agent 间可以互相发送消息
+- 🎯 **状态机**: idle/thinking/typing/success/error 状态实时同步
 
-- 🎮 **Canvas 2D 渲染引擎** - 流畅的像素角色动画
-- 🤖 **状态机驱动** - idle, typing, thinking, error, success 多种状态
-- 💬 **OpenAI兼容API** - 支持任何OpenAI格式的API端点
-- ⚡ **实时流式响应** - SSE实时状态推送
-- 🎨 **程序化像素生成** - 无需外部资源即可生成像素角色
+## 技术栈
+
+- **前端**: React + TypeScript + Vite + Zustand + Canvas 2D
+- **后端**: Fastify + WebSocket + SSE + TypeScript
+- **模型适配**: OpenAI 兼容接口、Anthropic、Ollama
 
 ## 快速开始
 
-### 安装依赖
+### 1. 安装依赖
 
 ```bash
+# 根目录（前端）
 npm install
+
+# 后端
+cd server
+npm install
+cd ..
 ```
 
-### 开发模式
+### 2. 启动服务
 
+#### 方式一：同时启动前后端（推荐开发使用）
+
+```bash
+npm run dev:all
+```
+
+#### 方式二：分别启动
+
+启动后端：
+```bash
+npm run server
+# 或
+cd server && npm run dev
+```
+
+启动前端：
 ```bash
 npm run dev
 ```
 
-### 配置API
+### 3. 访问应用
 
-创建 `.env` 文件:
+- 前端: http://localhost:5173
+- 后端: http://localhost:3001
 
-```env
-VITE_OPENAI_API_KEY=your_api_key
-VITE_OPENAI_BASE_URL=https://api.openai.com/v1
-VITE_OPENAI_MODEL=gpt-3.5-turbo
-```
+## 使用指南
 
-### 构建
+### 添加 Agent
 
-```bash
-npm run build
-```
+1. 点击右上角 **"+ 添加 Agent"** 按钮
+2. 选择模型提供商（SiliconFlow、DeepSeek、OpenAI 等）
+3. 填写配置信息：
+   - Agent 名称
+   - API Base URL
+   - API Key
+   - 模型名称
+4. 点击 **"测试连接"** 验证配置
+5. 点击 **"创建 Agent"**
 
-## 技术栈
+### 与 Agent 对话
 
-- React 18
-- TypeScript
-- Vite
-- Canvas 2D API
-- OpenAI Compatible API
+1. 点击场景中的 Agent 选中它
+2. 在右侧面板输入消息并发送
+3. 观察 Agent 状态变化和实时响应
+
+### 多 Agent 协作
+
+1. 创建两个或更多 Agent
+2. 选中一个 Agent
+3. 在右侧面板点击 **"向 xxx 提问"**
+4. 观察消息传递和响应流程
+
+### 演示模式
+
+点击 **"▶ 演示模式"** 按钮，自动循环切换所有 Agent 的状态。
+
+## API 文档
+
+### REST API
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | `/api/models` | 获取预设模型列表 |
+| GET | `/api/agents` | 获取所有 Agents |
+| POST | `/api/agents` | 创建 Agent |
+| DELETE | `/api/agents/:id` | 删除 Agent |
+| POST | `/api/chat/:agentId` | 发送消息（流式） |
+| POST | `/api/agents/:fromId/chat/:toId` | Agent 间对话 |
+| GET | `/api/stream/:agentId` | SSE 状态流 |
+| WS | `/ws/agent` | WebSocket 实时通信 |
+
+### 预设模型
+
+- SiliconFlow (DeepSeek-V3)
+- DeepSeek
+- OpenAI
+- Ollama (本地)
+- Anthropic Claude
 
 ## 项目结构
 
 ```
-src/
-├── api/              # API接口和SSE管理
-│   ├── OpenAICompatibleAPI.ts
-│   └── SSEManager.ts
-├── components/       # React组件
-│   ├── AgentCanvas.tsx
-│   └── AgentCanvas.css
-├── engine/           # 核心引擎
-│   ├── AgentStateMachine.ts
-│   ├── GameLoop.ts
-│   └── SpriteRenderer.ts
-├── types/            # TypeScript类型定义
-│   └── index.ts
-├── App.tsx
-└── main.tsx
+ai-agent-viz/
+├── src/                       # 前端代码
+│   ├── api/                  # API 客户端
+│   │   ├── apiClient.ts
+│   │   ├── sseClient.ts
+│   │   ├── webSocketClient.ts
+│   │   └── useAgentStatus.ts
+│   ├── components/           # UI 组件
+│   │   ├── AgentPanel.tsx
+│   │   ├── ConnectionStatus.tsx
+│   │   └── ModelConfigModal.tsx
+│   ├── engine/               # 渲染引擎
+│   ├── scenes/               # 场景
+│   ├── store/                # 状态管理
+│   └── types/                # 类型定义
+├── server/                    # 后端服务
+│   ├── adapters/             # 模型适配器
+│   │   ├── BaseAdapter.ts
+│   │   ├── OpenAIAdapter.ts
+│   │   ├── OllamaAdapter.ts
+│   │   └── AnthropicAdapter.ts
+│   ├── manager/              # Agent 管理
+│   ├── routes/               # API 路由
+│   └── index.ts              # 服务器入口
+└── package.json
 ```
 
-## 状态说明
+## 环境变量
 
-| 状态 | 颜色 | 说明 |
-|------|------|------|
-| idle | 绿色 | 空闲等待 |
-| typing | 蓝色 | 正在输出 |
-| thinking | 黄色 | 思考处理中 |
-| error | 红色 | 发生错误 |
-| success | 青绿 | 任务完成 |
+创建 `.env.local` 文件：
 
-## GitHub Pages 部署
+```bash
+VITE_API_URL=http://localhost:3001
+```
 
-项目已配置GitHub Actions自动部署。推送到main分支将自动触发部署。
+## 开发计划
 
-访问地址: https://yourusername.github.io/ai-agent-viz/
+- [x] Canvas 渲染引擎
+- [x] 像素小人状态可视化
+- [x] 办公室场景基础
+- [x] 后端服务搭建
+- [x] 模型适配器系统
+- [x] Fastify API 服务器
+- [x] 前端 API 集成
+- [x] 模型配置 UI
+- [x] 消息可视化
+- [ ] 更多动画效果
+- [ ] 消息历史持久化
+- [ ] 团队协作场景
 
 ## 许可证
 
 MIT
-
-## 致谢
-
-- 灵感来源于 [pixel-agents](https://github.com/pablodelucca/pixel-agents)

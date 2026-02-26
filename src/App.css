@@ -29,16 +29,18 @@ body {
 
 /* 头部 */
 .app-header {
-  padding: 24px;
-  text-align: center;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: linear-gradient(180deg, #1a1a3e 0%, #0f0f2e 100%);
   border-bottom: 3px solid #2a2a5e;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-.app-header h1 {
+.header-left h1 {
   margin: 0 0 8px 0;
-  font-size: 24px;
+  font-size: 20px;
   color: #fff;
   text-shadow: 
     3px 3px 0 #4a4a8e,
@@ -49,21 +51,80 @@ body {
   letter-spacing: 2px;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .subtitle {
   margin: 0;
-  font-size: 12px;
+  font-size: 10px;
   color: #8888aa;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
+/* 按钮样式 */
+.btn-primary, .btn-secondary {
+  font-family: 'Press Start 2P', monospace;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 10px;
+  letter-spacing: 1px;
+  transition: all 0.1s;
+}
+
+.btn-primary {
+  background: #4a4a8e;
+  color: #fff;
+  box-shadow: 0 4px 0 #2a2a5e, 0 6px 10px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary:hover {
+  background: #5a5a9e;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #2a2a5e, 0 8px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #2a2a5e, 0 3px 5px rgba(0, 0, 0, 0.3);
+}
+
+.btn-secondary {
+  background: #3a3a5e;
+  color: #ccccee;
+  box-shadow: 0 4px 0 #2a2a4e, 0 6px 10px rgba(0, 0, 0, 0.3);
+}
+
+.btn-secondary:hover {
+  background: #4a4a6e;
+  transform: translateY(-2px);
+}
+
+.btn-secondary.active {
+  background: #dc2626;
+  color: #fff;
+}
+
 /* 主内容区 */
 .app-main {
   flex: 1;
+  display: flex;
   padding: 20px;
-  max-width: 1000px;
-  width: 100%;
-  margin: 0 auto;
+  gap: 20px;
+  overflow: hidden;
+}
+
+.scene-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
 }
 
 /* 底部 */
@@ -189,9 +250,20 @@ body {
 }
 
 /* 响应式 */
-@media (max-width: 600px) {
+@media (max-width: 900px) {
+  .app-header {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+  
   .app-header h1 {
     font-size: 16px;
+  }
+  
+  .header-right {
+    flex-wrap: wrap;
+    justify-content: center;
   }
   
   .subtitle {
@@ -199,6 +271,7 @@ body {
   }
   
   .app-main {
+    flex-direction: column;
     padding: 12px;
   }
   
