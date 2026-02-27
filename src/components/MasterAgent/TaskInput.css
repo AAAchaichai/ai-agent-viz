@@ -1,0 +1,198 @@
+.task-input-container {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* 模式切换 */
+.mode-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.mode-toggle button {
+  flex: 1;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-toggle button:hover {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mode-toggle button.active {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+}
+
+.mode-toggle button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 输入区域 */
+.input-section {
+  margin-bottom: 16px;
+}
+
+.input-section label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.input-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: #60a5fa;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.toggle-btn:hover {
+  background: rgba(96, 165, 250, 0.1);
+}
+
+.input-section textarea,
+.input-section input {
+  width: 100%;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-section textarea::placeholder,
+.input-section input::placeholder {
+  color: #64748b;
+}
+
+.input-section textarea:focus,
+.input-section input:focus {
+  outline: none;
+  border-color: rgba(251, 191, 36, 0.5);
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.1);
+}
+
+.input-section textarea:disabled,
+.input-section input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.agent-names-input {
+  margin-top: 12px;
+}
+
+.agent-names-input label {
+  font-size: 0.75rem;
+  margin-bottom: 6px;
+}
+
+.agent-names-input input {
+  font-size: 0.85rem;
+}
+
+/* 操作按钮 */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.action-buttons button {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #1a1a2e;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+}
+
+.btn-primary.execute {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+}
+
+.btn-primary.execute:hover:not(:disabled) {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
+}
+
+.btn-secondary {
+  background: rgba(96, 165, 250, 0.2);
+  color: #93c5fd;
+  border: 1px solid rgba(96, 165, 250, 0.3);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(96, 165, 250, 0.3);
+}
+
+.action-buttons button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 提示信息 */
+.tips {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(96, 165, 250, 0.05);
+  border-radius: 6px;
+  border-left: 3px solid rgba(96, 165, 250, 0.3);
+}
+
+.tips p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}

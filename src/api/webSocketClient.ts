@@ -1,7 +1,7 @@
 import type { SSEEvent } from '../types';
 
-// 后端服务地址 - 与 apiClient.ts 保持一致
-const API_BASE_URL = 'http://115.191.56.155:3001';
+// 后端服务地址 - Railway 部署
+const API_BASE_URL = 'https://web-production-4e163.up.railway.app';
 const WS_URL = API_BASE_URL.replace(/^http/, 'ws') + '/ws/agent';
 
 export type WebSocketEventHandler = (event: SSEEvent) => void;

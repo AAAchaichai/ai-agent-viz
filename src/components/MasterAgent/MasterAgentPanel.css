@@ -1,0 +1,311 @@
+.master-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* 头部 */
+.master-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.master-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fbbf24;
+}
+
+.master-stats {
+  display: flex;
+  gap: 20px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.stat-value.success {
+  color: #4ade80;
+}
+
+.stat-value.error {
+  color: #f87171;
+}
+
+/* 错误提示 */
+.master-error {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(248, 113, 113, 0.2);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  color: #fca5a5;
+  margin: 0 20px;
+  margin-top: 12px;
+  border-radius: 8px;
+}
+
+.master-error button {
+  background: none;
+  border: none;
+  color: #fca5a5;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px;
+}
+
+/* 主内容区 */
+.master-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  padding: 20px;
+  gap: 20px;
+}
+
+.master-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.master-right {
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+/* 子Agent列表 */
+.agents-section,
+.tasks-section {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.agents-section h3,
+.tasks-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.agents-empty {
+  text-align: center;
+  padding: 24px;
+  color: #64748b;
+}
+
+.agents-empty .hint {
+  font-size: 0.8rem;
+  margin-top: 8px;
+  color: #475569;
+}
+
+.agents-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.agent-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+}
+
+.agent-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.agent-status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.agent-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.agent-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #f1f5f9;
+  margin-bottom: 2px;
+}
+
+.agent-role {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+
+.agent-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.skill-tag {
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  background: rgba(96, 165, 250, 0.2);
+  color: #93c5fd;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.agent-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.completed-count {
+  font-size: 0.75rem;
+  color: #4ade80;
+}
+
+.status-badge {
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+/* 任务历史 */
+.tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.task-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.task-item.selected {
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.task-id {
+  flex: 1;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-family: monospace;
+}
+
+.task-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100px;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.task-progress span {
+  font-size: 0.7rem;
+  color: #64748b;
+  min-width: 28px;
+  text-align: right;
+}
+
+.task-status {
+  font-size: 0.85rem;
+}
+
+/* 滚动条 */
+.master-left::-webkit-scrollbar,
+.master-right::-webkit-scrollbar {
+  width: 6px;
+}
+
+.master-left::-webkit-scrollbar-track,
+.master-right::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 3px;
+}
+
+.master-left::-webkit-scrollbar-thumb,
+.master-right::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.master-left::-webkit-scrollbar-thumb:hover,
+.master-right::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* 响应式 */
+@media (max-width: 900px) {
+  .master-content {
+    flex-direction: column;
+  }
+  
+  .master-right {
+    width: 100%;
+  }
+  
+  .master-stats {
+    gap: 12px;
+  }
+}

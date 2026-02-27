@@ -1,0 +1,235 @@
+.agent-team-grid {
+  background: linear-gradient(135deg, #1a1a3e 0%, #252550 100%);
+  border: 2px solid #3a3a6e;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.agent-team-grid.empty {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state {
+  text-align: center;
+  color: #666688;
+}
+
+.empty-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.empty-state p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+}
+
+.empty-hint {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.grid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid #3a3a6e;
+}
+
+.grid-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #e0e0ff;
+}
+
+.grid-stats {
+  display: flex;
+  gap: 12px;
+}
+
+.grid-stats .stat {
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.grid-stats .stat.active {
+  color: #fbbf24;
+}
+
+.grid-stats .stat.completed {
+  color: #4ade80;
+}
+
+.grid-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  padding: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.agent-card {
+  position: relative;
+  background: rgba(26, 26, 62, 0.6);
+  border: 2px solid #3a3a6e;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.agent-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--status-color, #3a3a6e);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.agent-card.selected {
+  border-color: #6b6bff;
+  box-shadow: 0 0 0 2px rgba(107, 107, 255, 0.3);
+}
+
+.card-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  opacity: 0.5;
+}
+
+.card-content {
+  padding: 12px;
+}
+
+.agent-avatar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
+  background: linear-gradient(135deg, #2a2a5e 0%, #3a3a6e 100%);
+  border-radius: 50%;
+  border: 2px solid #4a4a8e;
+}
+
+.avatar-emoji {
+  font-size: 24px;
+}
+
+.status-indicator {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #1a1a3e;
+}
+
+.agent-info {
+  text-align: center;
+}
+
+.agent-name {
+  font-size: 11px;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agent-role {
+  font-size: 9px;
+  color: #8888aa;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agent-skills {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.skill-tag {
+  font-size: 8px;
+  padding: 2px 6px;
+  background: rgba(74, 74, 142, 0.3);
+  border-radius: 4px;
+  color: #8888aa;
+}
+
+.skill-tag.more {
+  background: rgba(107, 107, 255, 0.3);
+  color: #6b6bff;
+}
+
+.agent-metrics {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #3a3a6e;
+}
+
+.metric {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: #4ade80;
+}
+
+.metric-icon {
+  font-size: 10px;
+}
+
+.current-task {
+  font-size: 12px;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px;
+  font-size: 9px;
+  font-weight: bold;
+}
+
+.status-icon {
+  font-size: 10px;
+}
+
+/* 状态动画 */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.agent-card.thinking .status-bar {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.agent-card.typing .status-bar {
+  animation: pulse 0.8s ease-in-out infinite;
+}

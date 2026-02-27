@@ -1,0 +1,266 @@
+.realtime-log {
+  background: linear-gradient(135deg, #1a1a3e 0%, #252550 100%);
+  border: 2px solid #3a3a6e;
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: 'Press Start 2P', monospace;
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid #3a3a6e;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.log-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #e0e0ff;
+}
+
+.log-count {
+  font-size: 10px;
+  color: #8888aa;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.pause-btn {
+  font-size: 14px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid #3a3a6e;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pause-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.pause-btn.paused {
+  background: rgba(248, 113, 113, 0.2);
+  border-color: #f87171;
+}
+
+.log-filters {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #3a3a6e;
+  overflow-x: auto;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 9px;
+  border: 1px solid;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  opacity: 0.5;
+}
+
+.filter-btn.active {
+  opacity: 1;
+}
+
+.filter-btn:hover {
+  opacity: 0.8;
+}
+
+.filter-btn.active:hover {
+  opacity: 1;
+}
+
+.filter-icon {
+  font-size: 10px;
+}
+
+.filter-count {
+  font-size: 8px;
+  opacity: 0.7;
+  margin-left: 2px;
+}
+
+.log-content {
+  overflow-y: auto;
+  background: rgba(10, 10, 26, 0.5);
+}
+
+.log-entries {
+  padding: 8px 0;
+}
+
+.log-entry {
+  display: grid;
+  grid-template-columns: 80px 70px auto 1fr;
+  gap: 8px;
+  padding: 6px 16px;
+  font-size: 9px;
+  border-left: 3px solid transparent;
+  transition: background-color 0.2s;
+}
+
+.log-entry:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.log-entry.new {
+  animation: highlight-new 2s ease-out;
+}
+
+@keyframes highlight-new {
+  0% { background-color: rgba(107, 107, 255, 0.2); }
+  100% { background-color: transparent; }
+}
+
+.log-entry.info {
+  border-left-color: #60a5fa;
+}
+
+.log-entry.warn {
+  border-left-color: #fbbf24;
+}
+
+.log-entry.error {
+  border-left-color: #f87171;
+}
+
+.log-entry.success {
+  border-left-color: #4ade80;
+}
+
+.log-entry.debug {
+  border-left-color: #a78bfa;
+}
+
+.entry-timestamp {
+  color: #666688;
+  font-size: 8px;
+  white-space: nowrap;
+}
+
+.entry-level {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 7px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.level-icon {
+  font-size: 8px;
+}
+
+.entry-source {
+  color: #8888aa;
+  white-space: nowrap;
+}
+
+.entry-message {
+  color: #e0e0ff;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.entry-metadata {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 0 4px 88px;
+  opacity: 0.7;
+}
+
+.metadata-item {
+  display: inline-flex;
+  gap: 4px;
+  font-size: 8px;
+}
+
+.meta-key {
+  color: #8888aa;
+}
+
+.meta-value {
+  color: #60a5fa;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.log-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #666688;
+}
+
+.empty-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.log-empty p {
+  margin: 0;
+  font-size: 12px;
+}
+
+.paused-indicator {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px;
+  background: rgba(248, 113, 113, 0.9);
+  color: #fff;
+  text-align: center;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* 滚动条样式 */
+.log-content::-webkit-scrollbar,
+.log-filters::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.log-content::-webkit-scrollbar-track,
+.log-filters::-webkit-scrollbar-track {
+  background: #1a1a3e;
+}
+
+.log-content::-webkit-scrollbar-thumb,
+.log-filters::-webkit-scrollbar-thumb {
+  background: #4a4a8e;
+  border-radius: 3px;
+}
+
+.log-content::-webkit-scrollbar-thumb:hover,
+.log-filters::-webkit-scrollbar-thumb:hover {
+  background: #5a5a9e;
+}

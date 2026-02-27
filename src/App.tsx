@@ -4,13 +4,18 @@ import { ModelConfigModal } from './components/ModelConfigModal';
 import { AgentPanel } from './components/AgentPanel';
 import { ConnectionStatus } from './components/ConnectionStatus';
 import { VersionInfo } from './components/VersionInfo';
+import { MasterAgentPanel } from './components/MasterAgent';
 import { useAgentStore, initAgentStoreListeners } from './store/agentStore';
 import type { ModelConfig } from './types';
 import './App.css';
 
+// 视图模式
+type ViewMode = 'master' | 'agents';
+
 function App() {
   const [isModelModalOpen, setIsModelModalOpen] = useState(false);
   const [showDemoButton, setShowDemoButton] = useState(true);
+  const [viewMode, setViewMode] = useState<ViewMode>('master'); // 默认显示总指挥
   
   const { 
     agents, 
@@ -62,8 +67,24 @@ function App() {
     <div className="app">
       <header className="app-header">
         <div className="header-left">
-          <h1>🤖 AI Agent Visualizer</h1>
-          <p className="subtitle">多模型 Agent 实时可视化</p>
+          <h1>🤖 AI Agent 总指挥系统</h1>
+          <p className="subtitle">多Agent协同任务调度与执行平台</p>
+        </div>
+        <div className="header-center">
+          <div className="view-mode-toggle">
+            <button 
+              className={`mode-btn ${viewMode === 'master' ? 'active' : ''}`}
+              onClick={() => setViewMode('master')}
+            >
+              🎯 总指挥模式
+            </button>
+            <button 
+              className={`mode-btn ${viewMode === 'agents' ? 'active' : ''}`}
+              onClick={() => setViewMode('agents')}
+            >
+              👥 Agent管理
+            </button>
+          </div>
         </div>
         <div className="header-right">
           <ConnectionStatus isConnected={isConnected} />
@@ -73,32 +94,42 @@ function App() {
           >
             + 添加 Agent
           </button>
-          <button 
-            className={`btn-secondary ${!showDemoButton ? 'active' : ''}`}
-            onClick={handleToggleDemo}
-          >
-            {showDemoButton ? '▶ 演示模式' : '⏹ 停止演示'}
-          </button>
+          {viewMode === 'agents' && (
+            <button 
+              className={`btn-secondary ${!showDemoButton ? 'active' : ''}`}
+              onClick={handleToggleDemo}
+            >
+              {showDemoButton ? '▶ 演示模式' : '⏹ 停止演示'}
+            </button>
+          )}
         </div>
       </header>
       
       <main className="app-main">
-        <div className="scene-container">
-          <OfficeScene />
-        </div>
-        
-        {selectedAgent && (
-          <AgentPanel 
-            agent={selectedAgent} 
-            onDelete={() => handleDeleteAgent(selectedAgent.id)}
-          />
+        {viewMode === 'master' ? (
+          // 总指挥模式：显示总指挥面板
+          <MasterAgentPanel />
+        ) : (
+          // Agent管理模式：原来的界面
+          <>
+            <div className="scene-container">
+              <OfficeScene />
+            </div>
+            
+            {selectedAgent && (
+              <AgentPanel 
+                agent={selectedAgent} 
+                onDelete={() => handleDeleteAgent(selectedAgent.id)}
+              />
+            )}
+          </>
         )}
       </main>
 
       <footer className="app-footer">
-        <p>Phase 3 | 多模型集成 + 实时状态同步</p>
+        <p>Phase 4 | 总指挥系统 | 多Agent协同调度</p>
         <p className="credits">
-          {agents.length} 个 Agent | 点击 Agent 选中 · 拖拽移动 · 实时对话
+          {agents.length} 个 Agent | {viewMode === 'master' ? '总指挥协调模式' : '独立管理模式'}
         </p>
         <VersionInfo />
       </footer>

@@ -1,0 +1,392 @@
+.analysis-result {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* 标签页 */
+.result-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 12px;
+}
+
+.result-tabs button {
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.result-tabs button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+}
+
+.result-tabs button.active {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+}
+
+.pulse-indicator {
+  color: #4ade80;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* 分析头部 */
+.analysis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.complexity-badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid;
+}
+
+.time-estimate {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+/* 分析理由 */
+.reasoning-section {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(96, 165, 250, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid rgba(96, 165, 250, 0.4);
+}
+
+.reasoning-section h4 {
+  margin: 0 0 10px 0;
+  font-size: 0.85rem;
+  color: #93c5fd;
+}
+
+.reasoning-section p {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+/* 技能列表 */
+.skills-section {
+  margin-bottom: 20px;
+}
+
+.skills-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-badge {
+  padding: 4px 10px;
+  background: rgba(139, 92, 246, 0.15);
+  color: #c4b5fd;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+/* 推荐配置 */
+.recommendation-section {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+}
+
+.recommendation-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.recommendation-item .label {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.recommendation-item .value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fbbf24;
+}
+
+/* 子任务列表 */
+.subtasks-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.subtasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.subtask-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.subtask-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.subtask-item.expanded {
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.subtask-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+}
+
+.subtask-index {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.subtask-status {
+  font-size: 0.9rem;
+}
+
+.subtask-title {
+  flex: 1;
+  font-size: 0.85rem;
+  color: #e2e8f0;
+}
+
+.subtask-priority {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.expand-icon {
+  font-size: 0.7rem;
+  color: #64748b;
+  transition: transform 0.2s ease;
+}
+
+.expand-icon.expanded {
+  transform: rotate(90deg);
+}
+
+.subtask-details {
+  padding: 0 12px 12px 48px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.subtask-details p {
+  margin: 12px 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
+.subtask-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.subtask-result {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+}
+
+.subtask-result h5 {
+  margin: 0 0 8px 0;
+  font-size: 0.75rem;
+  color: #4ade80;
+}
+
+.subtask-result pre {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* 进度部分 */
+.progress-section {
+  margin-bottom: 20px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.progress-label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.progress-value {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.progress-bar-container {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-status {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+/* 子任务进度 */
+.subtasks-progress {
+  margin-bottom: 20px;
+}
+
+.subtasks-progress h4 {
+  margin: 0 0 12px 0;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.subtasks-status-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.subtask-progress-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+}
+
+.subtask-num {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.subtask-name {
+  flex: 1;
+  font-size: 0.8rem;
+  color: #e2e8f0;
+}
+
+.subtask-state {
+  font-size: 0.75rem;
+}
+
+/* 总结部分 */
+.summary-section {
+  margin-bottom: 20px;
+}
+
+.summary-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.summary-content {
+  padding: 16px;
+  background: rgba(74, 222, 128, 0.05);
+  border: 1px solid rgba(74, 222, 128, 0.15);
+  border-radius: 8px;
+}
+
+.summary-content pre {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #cbd5e1;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 时间信息 */
+.time-info {
+  display: flex;
+  gap: 20px;
+  font-size: 0.75rem;
+  color: #64748b;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}

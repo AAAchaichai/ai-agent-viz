@@ -3,8 +3,11 @@ import { agentManager } from '../manager/AgentManager.js';
 import { agentFileManager } from '../manager/AgentFileManager.js';
 import { AdapterFactory, presetModels } from '../adapters/index.js';
 import type { ModelConfig } from '../types.ts';
+import { registerMasterRoutes } from './master.js';
 
 export async function registerRoutes(fastify: FastifyInstance) {
+  // 注册总指挥系统路由
+  await registerMasterRoutes(fastify);
   
   // 健康检查端点
   fastify.get('/api/health', async () => {
