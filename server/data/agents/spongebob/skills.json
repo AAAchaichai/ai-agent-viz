@@ -1,0 +1,17 @@
+{
+  "agentId": "spongebob",
+  "skills": [
+    {
+      "name": "代码审查",
+      "enabled": true
+    },
+    {
+      "name": "文档生成",
+      "enabled": true
+    },
+    {
+      "name": "性能优化",
+      "enabled": true
+    }
+  ]
+}

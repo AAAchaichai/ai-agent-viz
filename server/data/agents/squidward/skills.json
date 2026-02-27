@@ -1,0 +1,25 @@
+{
+  "agentId": "squidward",
+  "skills": [
+    {
+      "name": "代码审查",
+      "enabled": true
+    },
+    {
+      "name": "文档生成",
+      "enabled": false
+    },
+    {
+      "name": "代码重构",
+      "enabled": true
+    },
+    {
+      "name": "Bug修复",
+      "enabled": true
+    },
+    {
+      "name": "技术咨询",
+      "enabled": true
+    }
+  ]
+}

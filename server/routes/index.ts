@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { agentManager } from '../manager/AgentManager.js';
+import { agentFileManager } from '../manager/AgentFileManager.js';
 import { AdapterFactory, presetModels } from '../adapters/index.js';
 import type { ModelConfig } from '../types.ts';
 
@@ -41,7 +42,7 @@ export async function registerRoutes(fastify: FastifyInstance) {
     }
 
     try {
-      const agent = agentManager.createAgent(body.name, body.modelConfig);
+      const agent = await agentManager.createAgent(body.name, body.modelConfig);
       return { success: true, agent };
     } catch (error) {
       reply.status(500);
@@ -55,7 +56,7 @@ export async function registerRoutes(fastify: FastifyInstance) {
   // 删除 Agent
   fastify.delete('/api/agents/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
-    const success = agentManager.removeAgent(id);
+    const success = await agentManager.removeAgent(id);
     
     if (!success) {
       reply.status(404);
@@ -224,5 +225,194 @@ export async function registerRoutes(fastify: FastifyInstance) {
     
     agent.conversationHistory = [];
     return { success: true };
+  });
+
+  // ========== Agent 文件管理路由 ==========
+
+  // 获取 Agent 灵魂文件
+  fastify.get('/api/agents/:id/soul', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const agent = agentManager.getAgent(id);
+    
+    if (!agent) {
+      reply.status(404);
+      return { error: 'Agent not found' };
+    }
+    
+    const soul = await agentFileManager.readSoulFile(id);
+    if (!soul) {
+      reply.status(404);
+      return { error: 'Soul file not found' };
+    }
+    
+    return soul;
+  });
+
+  // 更新 Agent 灵魂文件
+  fastify.put('/api/agents/:id/soul', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const agent = agentManager.getAgent(id);
+    
+    if (!agent) {
+      reply.status(404);
+      return { error: 'Agent not found' };
+    }
+    
+    const data = request.body as Partial<{
+      name: string;
+      model: string;
+      apiKeyEncrypted: string;
+      personality: string;
+      role: string;
+    }>;
+    
+    const updated = await agentFileManager.updateSoulFile(id, data);
+    if (!updated) {
+      reply.status(500);
+      return { error: 'Failed to update soul file' };
+    }
+    
+    return { success: true, soul: updated };
+  });
+
+  // 获取 Agent 技能文件
+  fastify.get('/api/agents/:id/skills', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const agent = agentManager.getAgent(id);
+    
+    if (!agent) {
+      reply.status(404);
+      return { error: 'Agent not found' };
+    }
+    
+    const skills = await agentFileManager.readSkillsFile(id);
+    if (!skills) {
+      reply.status(404);
+      return { error: 'Skills file not found' };
+    }
+    
+    return skills;
+  });
+
+  // 更新 Agent 技能文件
+  fastify.put('/api/agents/:id/skills', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const agent = agentManager.getAgent(id);
+    
+    if (!agent) {
+      reply.status(404);
+      return { error: 'Agent not found' };
+    }
+    
+    const { skills } = request.body as { skills: Array<{ name: string; enabled: boolean }> };
+    
+    if (!skills || !Array.isArray(skills)) {
+      reply.status(400);
+      return { error: 'Missing required field: skills (array)' };
+    }
+    
+    const updated = await agentFileManager.updateSkillsFile(id, skills);
+    if (!updated) {
+      reply.status(500);
+      return { error: 'Failed to update skills file' };
+    }
+    
+    return { success: true, skills: updated };
+  });
+
+  // 获取 Agent 记忆文件
+  fastify.get('/api/agents/:id/memory', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const agent = agentManager.getAgent(id);
+    
+    if (!agent) {
+      reply.status(404);
+      return { error: 'Agent not found' };
+    }
+    
+    const memory = await agentFileManager.readMemoryFile(id);
+    if (!memory) {
+      reply.status(404);
+      return { error: 'Memory file not found' };
+    }
+    
+    return memory;
+  });
+
+  // 更新 Agent 记忆文件
+  fastify.put('/api/agents/:id/memory', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const agent = agentManager.getAgent(id);
+    
+    if (!agent) {
+      reply.status(404);
+      return { error: 'Agent not found' };
+    }
+    
+    const data = request.body as Partial<{
+      memories: string[];
+      workFiles: string[];
+      conversations: Array<{ id: string; timestamp: number; content: string }>;
+    }>;
+    
+    const updated = await agentFileManager.updateMemoryFile(id, data);
+    if (!updated) {
+      reply.status(500);
+      return { error: 'Failed to update memory file' };
+    }
+    
+    return { success: true, memory: updated };
+  });
+
+  // 添加记忆
+  fastify.post('/api/agents/:id/memory/add', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const agent = agentManager.getAgent(id);
+    
+    if (!agent) {
+      reply.status(404);
+      return { error: 'Agent not found' };
+    }
+    
+    const { memory } = request.body as { memory: string };
+    
+    if (!memory) {
+      reply.status(400);
+      return { error: 'Missing required field: memory' };
+    }
+    
+    const updated = await agentFileManager.addMemory(id, memory);
+    if (!updated) {
+      reply.status(500);
+      return { error: 'Failed to add memory' };
+    }
+    
+    return { success: true, memory: updated };
+  });
+
+  // 添加工作文件
+  fastify.post('/api/agents/:id/memory/workfile', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const agent = agentManager.getAgent(id);
+    
+    if (!agent) {
+      reply.status(404);
+      return { error: 'Agent not found' };
+    }
+    
+    const { filePath } = request.body as { filePath: string };
+    
+    if (!filePath) {
+      reply.status(400);
+      return { error: 'Missing required field: filePath' };
+    }
+    
+    const updated = await agentFileManager.addWorkFile(id, filePath);
+    if (!updated) {
+      reply.status(500);
+      return { error: 'Failed to add work file' };
+    }
+    
+    return { success: true, memory: updated };
   });
 }

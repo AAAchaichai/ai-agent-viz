@@ -1,0 +1,10 @@
+{
+  "agentId": "spongebob",
+  "memories": [
+    "这是海绵宝宝的第一条记忆"
+  ],
+  "workFiles": [
+    "/projects/example.js"
+  ],
+  "conversations": []
+}
