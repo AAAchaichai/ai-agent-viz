@@ -1,7 +1,7 @@
 import type { ModelConfig, AgentInstance } from '../types';
 
-// 后端服务地址 - Railway 部署
-const API_BASE_URL = 'https://web-production-4e163.up.railway.app';
+// 后端服务地址 - 本地开发
+const API_BASE_URL = 'http://localhost:3001';
 
 export interface ChatChunk {
   content: string;

@@ -33,7 +33,7 @@ export class AgentService {
   /**
    * 在服务器上删除 Agent
    */
-  static async deleteAgent(id: string): Promise<void> {
+  static async deleteAgent(id: string): Promise<{ success: boolean }> {
     return apiClient.deleteAgent(id);
   }
 
@@ -46,7 +46,7 @@ export class AgentService {
     onChunk: (chunk: { content?: string }) => void,
     onComplete: () => void,
     onError: (error: Error) => void
-  ): Promise<void> {
+  ): Promise<() => void> {
     return apiClient.sendMessage(
       agentId,
       message,
@@ -66,7 +66,7 @@ export class AgentService {
     onChunk: (chunk: { content?: string }) => void,
     onComplete: () => void,
     onError: (error: Error) => void
-  ): Promise<void> {
+  ): Promise<() => void> {
     return apiClient.sendMessageBetweenAgents(
       fromId,
       toId,

@@ -27,7 +27,7 @@ export interface Agent {
   isTyping?: boolean;
 }
 
-interface AgentStore {
+export interface AgentStore {
   // Agent 列表
   agents: Agent[];
   // 选中的 Agent
