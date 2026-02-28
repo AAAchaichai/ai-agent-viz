@@ -48,6 +48,11 @@ export abstract class BaseAdapter {
     });
   }
 
+  // 清理所有监听者（防止内存泄漏）
+  clearListeners(): void {
+    this.statusListeners = [];
+  }
+
   // 获取模型信息
   getModelInfo(): { provider: string; model: string; name: string } {
     return {

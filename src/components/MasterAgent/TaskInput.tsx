@@ -16,6 +16,17 @@ interface TaskInputProps {
   isExecuting: boolean;
 }
 
+/**
+ * 清理输入文本，移除零宽字符和控制字符
+ */
+function sanitizeInput(input: string): string {
+  return input
+    .replace(/[\u200B\u200C\u200D\uFEFF]/g, '') // 零宽字符
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '') // 控制字符
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n');
+}
+
 export const TaskInput: React.FC<TaskInputProps> = ({
   onAnalysisComplete,
   isAnalyzing,
@@ -36,6 +47,18 @@ export const TaskInput: React.FC<TaskInputProps> = ({
     setError
   } = useMasterStore();
 
+  // 处理任务输入变化（实时清理）
+  const handleTaskChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const sanitized = sanitizeInput(e.target.value);
+    setTask(sanitized);
+  }, []);
+
+  // 处理上下文输入变化（实时清理）
+  const handleContextChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const sanitized = sanitizeInput(e.target.value);
+    setContext(sanitized);
+  }, []);
+
   // 处理分析
   const handleAnalyze = useCallback(async () => {
     if (!task.trim()) {
@@ -53,7 +76,7 @@ export const TaskInput: React.FC<TaskInputProps> = ({
       // 创建子Agent团队
       const names = agentNames
         .split(',')
-        .map(n => n.trim())
+        .map(n => sanitizeInput(n.trim()))
         .filter(n => n.length > 0);
       
       const team = await createSubAgentTeam(analysis.id, names.length > 0 ? names : undefined);
@@ -61,7 +84,16 @@ export const TaskInput: React.FC<TaskInputProps> = ({
 
       onAnalysisComplete(analysis, team);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '分析失败');
+      // 详细错误处理
+      let errorMessage = '分析失败';
+      if (err instanceof Error) {
+        errorMessage = err.message;
+        // 检测特定错误模式
+        if (errorMessage.includes('pattern') || errorMessage.includes('match')) {
+          errorMessage = '输入包含非法字符，请检查并重新输入（避免复制粘贴的特殊格式）';
+        }
+      }
+      setError(errorMessage);
     } finally {
       setAnalyzing(false);
     }
@@ -80,20 +112,20 @@ export const TaskInput: React.FC<TaskInputProps> = ({
     try {
       const names = agentNames
         .split(',')
-        .map(n => n.trim())
+        .map(n => sanitizeInput(n.trim()))
         .filter(n => n.length > 0);
 
       const result = await executeTask(task, context || undefined, names.length > 0 ? names : undefined);
       
-      // 获取分析结果
+      // 使用后端返回的完整分析结果
       const analysis: TaskAnalysis = {
         id: result.taskId,
         originalTask: task,
         complexity: result.complexity,
         estimatedTime: result.estimatedTime,
-        reasoning: '',
-        subtasks: [],
-        requiredSkills: [],
+        reasoning: result.reasoning,
+        subtasks: result.subtasks,
+        requiredSkills: [], // 如果需要可以从后端返回
         recommendedAgents: result.team.length
       };
 
@@ -111,7 +143,16 @@ export const TaskInput: React.FC<TaskInputProps> = ({
 
       onAnalysisComplete(analysis, result.team);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '执行失败');
+      // 详细错误处理
+      let errorMessage = '执行失败';
+      if (err instanceof Error) {
+        errorMessage = err.message;
+        // 检测特定错误模式
+        if (errorMessage.includes('pattern') || errorMessage.includes('match')) {
+          errorMessage = '输入包含非法字符，请检查并重新输入（避免复制粘贴的特殊格式）';
+        }
+      }
+      setError(errorMessage);
     } finally {
       setExecuting(false);
     }
@@ -171,7 +212,7 @@ export const TaskInput: React.FC<TaskInputProps> = ({
         <label>任务描述</label>
         <textarea
           value={task}
-          onChange={(e) => setTask(e.target.value)}
+          onChange={handleTaskChange}
           placeholder={getPlaceholder()}
           rows={5}
           disabled={isLoading}
@@ -194,7 +235,7 @@ export const TaskInput: React.FC<TaskInputProps> = ({
           <>
             <textarea
               value={context}
-              onChange={(e) => setContext(e.target.value)}
+              onChange={handleContextChange}
               placeholder="提供额外的背景信息，帮助Agent更好地理解任务..."
               rows={3}
               disabled={isLoading}

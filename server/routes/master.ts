@@ -11,6 +11,24 @@ const analysisCache = new Map<string, TaskAnalysis>();
 
 export async function registerMasterRoutes(fastify: FastifyInstance) {
 
+  // ========== 诊断端点 ==========
+
+  /**
+   * GET /api/master/diagnose
+   * 诊断 MasterAgent 配置状态
+   */
+  fastify.get('/api/master/diagnose', async () => {
+    return {
+      success: true,
+      config: {
+        apiKeyConfigured: !!process.env.MINIMAX_API_KEY,
+        apiKeyLength: process.env.MINIMAX_API_KEY?.length || 0,
+        nodeEnv: process.env.NODE_ENV || 'not set'
+      },
+      timestamp: Date.now()
+    };
+  });
+
   // ========== 任务分析 ==========
 
   /**
@@ -270,6 +288,8 @@ export async function registerMasterRoutes(fastify: FastifyInstance) {
         taskId: analysis.id,
         complexity: analysis.complexity,
         estimatedTime: analysis.estimatedTime,
+        reasoning: analysis.reasoning,
+        subtasks: analysis.subtasks,
         subtaskCount: analysis.subtasks.length,
         teamSize: team.length,
         team: team.map(a => ({ id: a.id, name: a.name, role: a.role }))

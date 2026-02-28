@@ -63,7 +63,8 @@ const MINIMAX_CONFIG: ModelConfig = {
   model: 'MiniMax-M2.5',
   temperature: 0.7,
   maxTokens: 4000,
-  enabled: true
+  enabled: true,
+  apiKey: process.env.MINIMAX_API_KEY || ''
 };
 
 // 任务分析系统提示词
@@ -107,6 +108,10 @@ export class MasterAgent {
   private taskCounter: number = 0;
 
   constructor() {
+    console.log('[MasterAgent] Initializing with MINIMAX_CONFIG:', {
+      ...MINIMAX_CONFIG,
+      apiKey: MINIMAX_CONFIG.apiKey ? '***已设置***' : '***未设置***'
+    });
     this.adapter = new MinimaxAdapter(MINIMAX_CONFIG);
   }
 
@@ -179,26 +184,9 @@ export class MasterAgent {
       };
     } catch (error) {
       console.error('[MasterAgent] Failed to parse analysis:', error);
-      // 返回默认分析结果
-      return {
-        id,
-        originalTask,
-        complexity: 'medium',
-        estimatedTime: 10,
-        subtasks: [{
-          id: `subtask-${id}-0`,
-          title: '执行任务',
-          description: originalTask,
-          priority: 'medium',
-          estimatedMinutes: 10,
-          dependencies: [],
-          requiredSkills: [],
-          status: 'pending'
-        }],
-        requiredSkills: [],
-        recommendedAgents: 1,
-        reasoning: '解析失败，使用默认配置'
-      };
+      console.error('[MasterAgent] Raw content:', content);
+      // 抛出错误而不是返回默认配置，让前端知道出了问题
+      throw new Error(`解析分析结果失败: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 

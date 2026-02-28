@@ -1,71 +1,19 @@
 import { create } from 'zustand';
 import type { AgentState, AgentConfig, ModelConfig, AgentInstance } from '../types';
-import { apiClient } from '../api/apiClient';
-import { webSocketClient } from '../api/webSocketClient';
+import { AgentService } from '../services/AgentService';
+import { WebSocketService } from '../services/WebSocketService';
 
-// 默认预设模型配置（离线模式使用）
-const defaultPresetModels: ModelConfig[] = [
-  {
-    id: 'siliconflow',
-    name: 'SiliconFlow',
-    provider: 'openai',
-    baseUrl: 'https://api.siliconflow.cn/v1',
-    model: 'deepseek-ai/DeepSeek-V3',
-    temperature: 0.7,
-    maxTokens: 2000,
-    enabled: false
-  },
-  {
-    id: 'deepseek',
-    name: 'DeepSeek',
-    provider: 'openai',
-    baseUrl: 'https://api.deepseek.com/v1',
-    model: 'deepseek-chat',
-    temperature: 0.7,
-    maxTokens: 2000,
-    enabled: false
-  },
-  {
-    id: 'openai',
-    name: 'OpenAI',
-    provider: 'openai',
-    baseUrl: 'https://api.openai.com/v1',
-    model: 'gpt-4o-mini',
-    temperature: 0.7,
-    maxTokens: 2000,
-    enabled: false
-  },
-  {
-    id: 'ollama',
-    name: 'Ollama (Local)',
-    provider: 'ollama',
-    baseUrl: 'http://localhost:11434',
-    model: 'llama3.2',
-    temperature: 0.7,
-    maxTokens: 2000,
-    enabled: false
-  },
-  {
-    id: 'anthropic',
-    name: 'Anthropic Claude',
-    provider: 'anthropic',
-    baseUrl: 'https://api.anthropic.com',
-    model: 'claude-3-5-sonnet-20241022',
-    temperature: 0.7,
-    maxTokens: 2000,
-    enabled: false
-  },
-  {
-    id: 'minimax',
-    name: 'MiniMax M2.5',
-    provider: 'minimax',
-    baseUrl: 'https://api.minimaxi.com/anthropic',
-    model: 'MiniMax-M2.5',
-    temperature: 0.7,
-    maxTokens: 2000,
-    enabled: true
-  }
-];
+// 默认 MiniMax 模型配置（服务端获取失败时使用）
+const DEFAULT_MINIMAX_CONFIG: ModelConfig = {
+  id: 'minimax',
+  name: 'MiniMax M2.5',
+  provider: 'minimax',
+  baseUrl: 'https://api.minimaxi.com/anthropic',
+  model: 'MiniMax-M2.5',
+  temperature: 0.7,
+  maxTokens: 2000,
+  enabled: true
+};
 
 export interface Agent {
   id: string;
@@ -94,8 +42,10 @@ interface AgentStore {
   isConnected: boolean;
   // 预设模型
   presetModels: ModelConfig[];
+  // 演示模式定时器（避免模块级全局变量泄漏）
+  demoInterval: ReturnType<typeof setInterval> | null;
   
-  // Actions
+  // Actions - 基础状态操作
   addAgent: (config: Partial<AgentConfig>) => string;
   addAgentFromServer: (instance: AgentInstance) => string;
   removeAgent: (id: string) => void;
@@ -108,16 +58,20 @@ interface AgentStore {
   setConnectionStatus: (isConnected: boolean) => void;
   setPresetModels: (models: ModelConfig[]) => void;
   
-  // 服务器同步
+  // Actions - 业务逻辑（通过 Service 层处理）
   syncWithServer: () => Promise<void>;
   createServerAgent: (name: string, modelConfig: ModelConfig) => Promise<void>;
   deleteServerAgent: (id: string) => Promise<void>;
   sendMessageToAgent: (agentId: string, message: string) => Promise<void>;
   sendMessageBetweenAgents: (fromId: string, toId: string, message: string) => Promise<void>;
   
-  // 演示模式
+  // Actions - 演示模式
   startDemoMode: () => void;
   stopDemoMode: () => void;
+  
+  // Getters - 用于 selector 优化
+  getAgentById: (id: string) => Agent | undefined;
+  getAgentMessage: (id: string) => string | undefined;
 }
 
 // 状态对应的颜色
@@ -130,7 +84,6 @@ const stateColors: Record<AgentState, string> = {
 };
 
 let agentIdCounter = 0;
-let demoInterval: ReturnType<typeof setInterval> | null = null;
 
 export const useAgentStore = create<AgentStore>((set, get) => ({
   agents: [],
@@ -142,7 +95,10 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
   },
   isConnected: false,
   presetModels: [],
+  demoInterval: null,
 
+  // ===== 基础状态操作（纯状态管理） =====
+  
   addAgent: (config) => {
     const id = `agent-${++agentIdCounter}`;
     const newAgent: Agent = {
@@ -222,17 +178,28 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
     }));
   },
 
+  /**
+   * 更新 Agent 消息
+   * 性能优化：使用函数式更新避免不必要的重渲染
+   */
   updateAgentMessage: (id, message, append = false) => {
-    set((state) => ({
-      agents: state.agents.map(agent => 
-        agent.id === id 
-          ? { 
-              ...agent, 
-              message: append ? (agent.message || '') + message : message 
-            }
-          : agent
-      )
-    }));
+    set((state) => {
+      const agent = state.agents.find(a => a.id === id);
+      if (!agent) return state; // 无变化，不触发更新
+      
+      const newMessage = append ? (agent.message || '') + message : message;
+      
+      // 如果消息内容相同，不触发更新
+      if (newMessage === agent.message) return state;
+      
+      return {
+        agents: state.agents.map(agent => 
+          agent.id === id 
+            ? { ...agent, message: newMessage }
+            : agent
+        )
+      };
+    });
   },
 
   setAgentTyping: (id, isTyping) => {
@@ -261,30 +228,41 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
     set({ presetModels: models });
   },
 
-  // 服务器同步
+  // ===== Getters - 用于 selector 优化 =====
+  
+  getAgentById: (id) => {
+    return get().agents.find(a => a.id === id);
+  },
+  
+  getAgentMessage: (id) => {
+    return get().agents.find(a => a.id === id)?.message;
+  },
+
+  // ===== 业务逻辑（通过 Service 层处理） =====
+  
   syncWithServer: async () => {
     try {
-      // 获取预设模型
-      const models = await apiClient.getModels();
+      // 获取预设模型（统一由服务端提供）
+      const models = await AgentService.fetchPresetModels();
       get().setPresetModels(models.presets);
 
       // 获取已创建的 Agents
-      const serverAgents = await apiClient.getAgents();
+      const serverAgents = await AgentService.fetchAgents();
       
       // 同步到本地状态
       serverAgents.forEach((agent: AgentInstance) => {
         get().addAgentFromServer(agent);
       });
     } catch (error) {
-      console.warn('Server not available, using default presets:', error);
-      // 使用本地预设模型（离线模式）
-      get().setPresetModels(defaultPresetModels);
+      console.warn('Server not available, using default MiniMax config:', error);
+      // 离线模式下使用默认 MiniMax 配置，确保用户至少有一个可用模型
+      get().setPresetModels([DEFAULT_MINIMAX_CONFIG]);
     }
   },
 
   createServerAgent: async (name, modelConfig) => {
     try {
-      const result = await apiClient.createAgent(name, modelConfig);
+      const result = await AgentService.createAgent(name, modelConfig);
       if (result.success && result.agent) {
         get().addAgentFromServer(result.agent);
       }
@@ -306,7 +284,7 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
 
   deleteServerAgent: async (id) => {
     try {
-      await apiClient.deleteAgent(id);
+      await AgentService.deleteAgent(id);
       get().removeAgent(id);
     } catch (error) {
       console.error('Failed to delete server agent:', error);
@@ -318,7 +296,7 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
     const { updateAgentMessage } = get();
     
     try {
-      await apiClient.sendMessage(
+      await AgentService.sendMessage(
         agentId,
         message,
         (chunk) => {
@@ -342,7 +320,7 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
     const { updateAgentMessage } = get();
     
     try {
-      await apiClient.sendMessageBetweenAgents(
+      await AgentService.sendMessageBetweenAgents(
         fromId,
         toId,
         message,
@@ -363,14 +341,16 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
     }
   },
 
-  // 演示模式：自动循环切换状态 idle → thinking → typing → idle
+  // ===== 演示模式 =====
+  
   startDemoMode: () => {
+    const { demoInterval } = get();
     if (demoInterval) return;
     
     const stateCycle: AgentState[] = ['idle', 'thinking', 'typing', 'idle'];
     let currentIndex = 0;
     
-    demoInterval = setInterval(() => {
+    const interval = setInterval(() => {
       const { agents } = get();
       currentIndex = (currentIndex + 1) % stateCycle.length;
       const nextState = stateCycle[currentIndex];
@@ -379,43 +359,35 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
         get().updateAgentState(agent.id, nextState);
       });
     }, 2000);
+    
+    set({ demoInterval: interval });
   },
 
   stopDemoMode: () => {
+    const { demoInterval } = get();
     if (demoInterval) {
       clearInterval(demoInterval);
-      demoInterval = null;
+      set({ demoInterval: null });
     }
   }
 }));
 
-// 初始化 WebSocket 监听
+/**
+ * 初始化 Store 监听器
+ * 使用 WebSocketService 处理 WebSocket 逻辑
+ */
 export function initAgentStoreListeners() {
   const store = useAgentStore.getState();
-
-  // 监听 WebSocket 事件
-  webSocketClient.subscribe((event) => {
-    switch (event.type) {
-      case 'state_change':
-        store.updateAgentState(event.agentId, event.data.status);
-        break;
-      case 'message_chunk':
-        store.updateAgentMessage(event.agentId, event.data.content, true);
-        break;
-      case 'message_complete':
-        store.setAgentTyping(event.agentId, false);
-        break;
-    }
-  });
-
-  // 监听连接状态
-  webSocketClient.onStatusChange((status) => {
-    store.setConnectionStatus(status === 'connected');
-  });
-
-  // 连接 WebSocket
-  webSocketClient.connect();
-
+  
+  // 使用 WebSocketService 管理 WebSocket 连接
+  const wsService = new WebSocketService(store);
+  wsService.initialize();
+  
   // 同步服务器数据
   store.syncWithServer();
+  
+  // 返回清理函数
+  return () => {
+    wsService.cleanup();
+  };
 }

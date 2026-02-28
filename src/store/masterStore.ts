@@ -196,16 +196,47 @@ export const useMasterStore = create<MasterState & MasterActions>((set, _get) =>
   })
 }));
 
+// ========== 输入清理工具函数 ==========
+
+/**
+ * 清理用户输入，移除可能导致问题的特殊字符
+ * - 零宽字符 (zero-width characters)
+ * - 控制字符
+ * - 多余的空白
+ */
+function sanitizeInput(input: string): string {
+  if (!input) return '';
+  
+  return input
+    // 移除零宽字符
+    .replace(/[\u200B\u200C\u200D\uFEFF]/g, '')
+    // 移除控制字符（保留换行和制表符）
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+    // 规范化换行符
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    // 移除开头和结尾的空白
+    .trim();
+}
+
 // ========== API 方法 ==========
 
 /**
  * 分析任务
  */
 export async function analyzeTask(task: string, context?: string): Promise<TaskAnalysis> {
+  // 清理输入
+  const sanitizedTask = sanitizeInput(task);
+  const sanitizedContext = context ? sanitizeInput(context) : undefined;
+  
+  if (!sanitizedTask) {
+    throw new Error('任务描述不能为空或只包含特殊字符');
+  }
+  
   const response = await fetch(`${API_BASE}/analyze`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ task, context })
+    body: JSON.stringify({ task: sanitizedTask, context: sanitizedContext })
   });
 
   const data: AnalyzeResponse = await response.json();
@@ -266,12 +297,26 @@ export async function executeTask(
   taskId: string;
   complexity: Complexity;
   estimatedTime: number;
+  reasoning: string;
+  subtasks: Subtask[];
   team: SubAgent[];
 }> {
+  // 清理输入
+  const sanitizedTask = sanitizeInput(task);
+  const sanitizedContext = context ? sanitizeInput(context) : undefined;
+  
+  if (!sanitizedTask) {
+    throw new Error('任务描述不能为空或只包含特殊字符');
+  }
+
   const response = await fetch(`${API_BASE}/execute`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ task, context, agentNames })
+    body: JSON.stringify({ 
+      task: sanitizedTask, 
+      context: sanitizedContext, 
+      agentNames 
+    })
   });
 
   const data = await response.json();
@@ -284,6 +329,8 @@ export async function executeTask(
     taskId: data.taskId,
     complexity: data.complexity,
     estimatedTime: data.estimatedTime,
+    reasoning: data.reasoning || '',
+    subtasks: data.subtasks || [],
     team: data.team
   };
 }

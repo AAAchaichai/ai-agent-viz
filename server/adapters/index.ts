@@ -98,7 +98,12 @@ export class AdapterFactory {
   }
 
   static removeAdapter(id: string): void {
-    this.instances.delete(id);
+    const adapter = this.instances.get(id);
+    if (adapter) {
+      // 清理适配器上的所有监听者，防止内存泄漏
+      adapter.clearListeners?.();
+      this.instances.delete(id);
+    }
   }
 
   static getPresetModels(): ModelConfig[] {
