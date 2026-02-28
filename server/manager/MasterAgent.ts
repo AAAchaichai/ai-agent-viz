@@ -82,23 +82,25 @@ const TASK_ANALYSIS_PROMPT = `你是总指挥Agent，专门负责分析复杂任
 - 技能需求：列出完成任务所需的关键技能
 - 依赖关系：识别子任务之间的依赖顺序
 
-输出格式（JSON）：
+重要：你必须只返回 JSON 格式，不要返回任何其他文本、解释或 markdown 代码块。
+
+输出格式（严格的 JSON）：
 {
-  "complexity": "simple|medium|complex",
-  "estimatedTime": 总预估分钟数,
-  "reasoning": "分析 reasoning",
+  "complexity": "simple",
+  "estimatedTime": 10,
+  "reasoning": "分析理由",
   "subtasks": [
     {
       "title": "子任务标题",
       "description": "详细描述",
-      "priority": "high|medium|low",
-      "estimatedMinutes": 预估分钟数,
-      "dependencies": ["依赖的子任务索引"],
-      "requiredSkills": ["所需技能"]
+      "priority": "high",
+      "estimatedMinutes": 5,
+      "dependencies": [],
+      "requiredSkills": ["技能1"]
     }
   ],
-  "requiredSkills": ["整体所需技能"],
-  "recommendedAgents": 推荐Agent数量
+  "requiredSkills": ["技能1", "技能2"],
+  "recommendedAgents": 2
 }`;
 
 export class MasterAgent {

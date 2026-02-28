@@ -70,10 +70,37 @@ export class MinimaxAdapter extends BaseAdapter {
       }
 
       const data = await response.json();
+      console.log('[MinimaxAdapter] Raw response:', JSON.stringify(data).slice(0, 1000));
       this.setStatus('success');
 
+      // Handle different response formats
+      let content = '';
+      
+      // MiniMax returns content in different formats
+      if (data.content && Array.isArray(data.content)) {
+        // Find the text content (MiniMax may return thinking + text)
+        for (const item of data.content) {
+          if (item.text) {
+            content = item.text;
+            break;
+          }
+        }
+        // Fallback to thinking if no text found
+        if (!content && data.content[0]?.thinking) {
+          content = data.content[0].thinking;
+        }
+      } else if (data.text) {
+        content = data.text;
+      } else if (data.message?.content) {
+        content = data.message.content;
+      } else if (data.choices && data.choices[0]?.message?.content) {
+        content = data.choices[0].message.content;
+      }
+
+      console.log('[MinimaxAdapter] Extracted content:', content.slice(0, 200));
+
       return {
-        content: data.content?.[0]?.text || '',
+        content: content,
         usage: data.usage ? {
           promptTokens: data.usage.input_tokens,
           completionTokens: data.usage.output_tokens,
